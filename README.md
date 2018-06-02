@@ -1,10 +1,12 @@
-# mod-save-cleaner
+# mod-instance-reset
 
 
 ## Description
 
-A simple npc for cleaning saves. It only clears the save of normal difficulties, if you want it to clear all, just change the .conf file.
+Talk to the NPC to reset the instances you already visited. By default, it only resets for normal difficulty, if you want to reset for all difficulties, just edit the .conf file.
 
+## Why use this?
+The NPC can be spawned in a specific zone only accessible after completing a quest or having an item. It's up to you to find uses.
 
 ## How to use ingame
 
