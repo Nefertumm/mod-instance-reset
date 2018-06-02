@@ -1,1 +1,1 @@
-void AddSaveCleanerScripts();
+void AddInstanceResetScripts();

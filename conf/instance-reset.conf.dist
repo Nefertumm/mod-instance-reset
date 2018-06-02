@@ -5,7 +5,7 @@
 # default: true
 #
 
-saveCleaner.Enable=true
+instanceReset.Enable=true
 
 #############
 #
@@ -13,4 +13,4 @@ saveCleaner.Enable=true
 # default: true
 #
 
-saveCleaner.NormalModeOnly = true
+instanceReset.NormalModeOnly = true

@@ -6,14 +6,14 @@
 #include "ScriptedGossip.h"
 #include "Language.h"
 
-class saveCleaner : public CreatureScript
+class instanceReset : public CreatureScript
 {
 public:
-    saveCleaner() : CreatureScript("saveCleaner") { }
+    instanceReset() : CreatureScript("instanceReset") { }
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (!sConfigMgr->GetBoolDefault("saveCleaner.Enable", true))
+        if (!sConfigMgr->GetBoolDefault("instanceReset.Enable", true))
             return true;
         player->PlayerTalkClass->ClearMenus();
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to remove my instance saves.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -24,11 +24,10 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        uint32 counter = 0;
         uint32 diff = 2;
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
-            if (!sConfigMgr->GetBoolDefault("saveCleaner.NormalModeOnly", true))
+            if (!sConfigMgr->GetBoolDefault("instanceReset.NormalModeOnly", true))
                 diff = MAX_DIFFICULTY;
             for (uint8 i = 0; i < diff; ++i)
             {
@@ -42,32 +41,31 @@ public:
                         uint32 ttr = (resetTime >= time(nullptr) ? resetTime - time(nullptr) : 0);
                         sInstanceSaveMgr->PlayerUnbindInstance(player->GetGUIDLow(), itr->first, Difficulty(i), true, player);
                         itr = m_boundInstances.begin();
-                        counter++;
                     }
                     else
                         ++itr;
                 }
             }
-            creature->MonsterWhisper("Your instances have been reset.", player);
+            creature->MonsterWhisper("Your instances have been reset." , player);
             player->CLOSE_GOSSIP_MENU();
         }
         return true;
     }
 };
 
-class saveCleanerWorld : public WorldScript
+class instanceResetWorld : public WorldScript
 {
 public:
-    saveCleanerWorld() : WorldScript("saveCleanerWorld") { }
+    instanceResetWorld() : WorldScript("instanceResetWorld") { }
 
     void OnBeforeConfigLoad(bool reload) override
     {
         if (!reload)
         {
             std::string conf_path = _CONF_DIR;
-            std::string cfg_file = conf_path + "/save_cleaner.conf";
+            std::string cfg_file = conf_path + "/instance-reset.conf";
 			#ifdef WIN32
-            cfg_file = "save_cleaner.conf";
+            cfg_file = "instance-reset.conf";
 			#endif
             std::string cfg_def_file = cfg_file + ".dist";
 
@@ -77,8 +75,8 @@ public:
     }
 };
 
-void AddSaveCleanerScripts() {
-    new saveCleaner();
-    new saveCleanerWorld(); 
+void AddInstanceResetScripts() {
+    new instanceReset();
+    new instanceResetWorld(); 
 }
 

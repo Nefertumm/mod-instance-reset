@@ -1,1 +1,1 @@
-install(FILES "${CMAKE_SOURCE_DIR}/modules/mod-save-cleaner/conf/save_cleaner.conf.dist" DESTINATION ${CONF_DIR})
+install(FILES "${CMAKE_SOURCE_DIR}/modules/mod-instance-reset/conf/instance-reset.conf.dist" DESTINATION ${CONF_DIR})
