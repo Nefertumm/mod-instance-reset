@@ -1,0 +1,84 @@
+#include "loader.h"
+#include "ScriptMgr.h"
+#include "Player.h"
+#include "Configuration/Config.h"
+#include "GossipDef.h"
+#include "ScriptedGossip.h"
+#include "Language.h"
+
+class saveCleaner : public CreatureScript
+{
+public:
+    saveCleaner() : CreatureScript("saveCleaner") { }
+
+    bool OnGossipHello(Player* player, Creature* creature) override
+    {
+        if (!sConfigMgr->GetBoolDefault("saveCleaner.Enable", true))
+            return true;
+        player->PlayerTalkClass->ClearMenus();
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to remove my instance saves.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    {
+        player->PlayerTalkClass->ClearMenus();
+        uint32 counter = 0;
+        uint32 diff = 2;
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            if (!sConfigMgr->GetBoolDefault("saveCleaner.NormalModeOnly", true))
+                diff = MAX_DIFFICULTY;
+            for (uint8 i = 0; i < diff; ++i)
+            {
+                BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(player->GetGUIDLow(), Difficulty(i));
+                for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end();)
+                {
+                    InstanceSave* save = itr->second.save;
+                    if (itr->first != player->GetMapId())
+                    {
+                        uint32 resetTime = itr->second.extended ? save->GetExtendedResetTime() : save->GetResetTime();
+                        uint32 ttr = (resetTime >= time(nullptr) ? resetTime - time(nullptr) : 0);
+                        sInstanceSaveMgr->PlayerUnbindInstance(player->GetGUIDLow(), itr->first, Difficulty(i), true, player);
+                        itr = m_boundInstances.begin();
+                        counter++;
+                    }
+                    else
+                        ++itr;
+                }
+            }
+            creature->MonsterWhisper("Your instances have been reset.", player);
+            player->CLOSE_GOSSIP_MENU();
+        }
+        return true;
+    }
+};
+
+class saveCleanerWorld : public WorldScript
+{
+public:
+    saveCleanerWorld() : WorldScript("saveCleanerWorld") { }
+
+    void OnBeforeConfigLoad(bool reload) override
+    {
+        if (!reload)
+        {
+            std::string conf_path = _CONF_DIR;
+            std::string cfg_file = conf_path + "/save_cleaner.conf";
+			#ifdef WIN32
+            cfg_file = "save_cleaner.conf";
+			#endif
+            std::string cfg_def_file = cfg_file + ".dist";
+
+            sConfigMgr->LoadMore(cfg_def_file.c_str());
+            sConfigMgr->LoadMore(cfg_file.c_str());
+        }
+    }
+};
+
+void AddSaveCleanerScripts() {
+    new saveCleaner();
+    new saveCleanerWorld(); 
+}
+
