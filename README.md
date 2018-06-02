@@ -3,7 +3,7 @@
 
 ## Description
 
-A simple npc for cleaning saves.
+A simple npc for cleaning saves. It only clears the save of normal difficulties, if you want it to clear all, just change the .conf file.
 
 
 ## How to use ingame
