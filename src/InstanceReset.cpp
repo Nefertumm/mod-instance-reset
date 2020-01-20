@@ -15,15 +15,15 @@ public:
     {
         if (!sConfigMgr->GetBoolDefault("instanceReset.Enable", true))
             return true;
-        player->PlayerTalkClass->ClearMenus();
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to remove my instance saves.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+        ClearGossipMenuFor(player);
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "I would like to remove my instance saves.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         uint32 diff = 2;
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
@@ -47,7 +47,7 @@ public:
                 }
             }
             creature->MonsterWhisper("Your instances have been reset." , player);
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
         }
         return true;
     }
